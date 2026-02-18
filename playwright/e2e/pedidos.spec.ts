@@ -36,11 +36,39 @@ test.describe('Consulta de pedido', () => {
       //   await expect(orderStatus).toContainText('APROVADO');
       
         // Solução do desafio
-        const containerPedido = page.getByRole('paragraph')
-          .filter({ hasText: /^Pedido$/ })
-          .locator('..') // Sobe para o elemento pai (a div que agrupa ambos)
+        // const containerPedido = page.getByRole('paragraph')
+        //   .filter({ hasText: /^Pedido$/ })
+        //   .locator('..') // Sobe para o elemento pai (a div que agrupa ambos)
       
-        await expect(containerPedido).toContainText(order, { timeout: 10_000 });
+        // await expect(containerPedido).toContainText(order, { timeout: 10_000 });
+        await expect(page.getByTestId(`order-result-${order}`)).toMatchAriaSnapshot(`
+          - img
+          - paragraph: Pedido
+          - paragraph: ${order}
+          - img
+          - text: APROVADO
+          - img "Velô Sprint"
+          - paragraph: Modelo
+          - paragraph: Velô Sprint
+          - paragraph: Cor
+          - paragraph: Lunar White
+          - paragraph: Interior
+          - paragraph: cream
+          - paragraph: Rodas
+          - paragraph: aero Wheels
+          - heading "Dados do Cliente" [level=4]
+          - paragraph: Nome
+          - paragraph: Papito Matsumoto
+          - paragraph: Email
+          - paragraph: email@email.com
+          - paragraph: Loja de Retirada
+          - paragraph
+          - paragraph: Data do Pedido
+          - paragraph: /\\d+\\/\\d+\\/\\d+/
+          - heading "Pagamento" [level=4]
+          - paragraph: À Vista
+          - paragraph: /R\\$ \\d+\\.\\d+,\\d+/
+          `);
       
       //   await expect(page.getByTestId('order-result-id')).toBeVisible({ timeout: 30000 });
       //   await expect(page.getByTestId('order-result-id')).toContainText('VLO-680LJF');
