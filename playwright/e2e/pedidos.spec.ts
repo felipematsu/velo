@@ -17,8 +17,11 @@ test('deve consultar um pedido aprovado', async ({ page }) => {
   await page.getByRole('button', { name: 'Buscar Pedido' }).click();
 
   // Assert
-  await expect(page.getByTestId('order-result-id')).toBeVisible({ timeout: 30000 });
-  await expect(page.getByTestId('order-result-id')).toContainText('VLO-680LJF');
-  await expect(page.getByTestId('order-result-status')).toBeVisible();
-  await expect(page.getByTestId('order-result-status')).toContainText('APROVADO');
+  const orderResult = page.locator('//p[text()="Pedido"]/..//p[text()="VLO-680LJF"]');
+  await expect(orderResult).toBeVisible({ timeout: 30000 });
+  await expect(orderResult).toContainText('VLO-680LJF');
+
+  const orderStatus = page.locator('//div[text()="APROVADO"]');
+  await expect(orderStatus).toBeVisible({ timeout: 30000 });
+  await expect(orderStatus).toContainText('APROVADO');
 });
