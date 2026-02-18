@@ -19,10 +19,21 @@ test.describe('Consulta de pedido', () => {
     test('deve consultar um pedido aprovado', async ({ page }) => {
 
         // Test Data
-        const order = 'VLO-680LJF';
+        // const order = 'VLO-680LJF';
+        const order = {
+          number: 'VLO-680LJF',
+          status: 'APROVADO',
+          color: 'Lunar White',
+          wheels: 'aero Wheels',
+          customer: {
+            name: 'Papito Matsumoto',
+            email: 'email@email.com'
+          },
+          payment: 'À Vista'
+        }
 
         // Act
-        await page.getByRole('textbox', { name: 'Número do Pedido' }).fill(order); // xpath - //label[text()='Número do Pedido']/..//input
+        await page.getByRole('textbox', { name: 'Número do Pedido' }).fill(order.number); // xpath - //label[text()='Número do Pedido']/..//input
         // await page.getByTestId('search-order-button').click();
         await page.getByRole('button', { name: 'Buscar Pedido' }).click();
       
@@ -41,32 +52,32 @@ test.describe('Consulta de pedido', () => {
         //   .locator('..') // Sobe para o elemento pai (a div que agrupa ambos)
       
         // await expect(containerPedido).toContainText(order, { timeout: 10_000 });
-        await expect(page.getByTestId(`order-result-${order}`)).toMatchAriaSnapshot(`
+        await expect(page.getByTestId(`order-result-${order.number}`)).toMatchAriaSnapshot(`
           - img
           - paragraph: Pedido
-          - paragraph: ${order}
+          - paragraph: ${order.number}
           - img
-          - text: APROVADO
+          - text: ${order.status}
           - img "Velô Sprint"
           - paragraph: Modelo
           - paragraph: Velô Sprint
           - paragraph: Cor
-          - paragraph: Lunar White
+          - paragraph: ${order.color}
           - paragraph: Interior
           - paragraph: cream
           - paragraph: Rodas
-          - paragraph: aero Wheels
+          - paragraph: ${order.wheels}
           - heading "Dados do Cliente" [level=4]
           - paragraph: Nome
-          - paragraph: Papito Matsumoto
+          - paragraph: ${order.customer.name}
           - paragraph: Email
-          - paragraph: email@email.com
+          - paragraph: ${order.customer.email}
           - paragraph: Loja de Retirada
           - paragraph
           - paragraph: Data do Pedido
           - paragraph: /\\d+\\/\\d+\\/\\d+/
           - heading "Pagamento" [level=4]
-          - paragraph: À Vista
+          - paragraph: ${order.payment}
           - paragraph: /R\\$ \\d+\\.\\d+,\\d+/
           `);
       
@@ -74,6 +85,57 @@ test.describe('Consulta de pedido', () => {
       //   await expect(page.getByTestId('order-result-id')).toContainText('VLO-680LJF');
       //   await expect(page.getByTestId('order-result-status')).toBeVisible();
       //   await expect(page.getByTestId('order-result-status')).toContainText('APROVADO');
+      });
+
+      test('deve consultar um pedido reprovado', async ({ page }) => {
+
+        // Test Data
+        // const order = 'VLO-6YCTVS';
+        const order = {
+          number: 'VLO-6YCTVS',
+          status: 'REPROVADO',
+          color: 'Midnight Black',
+          wheels: 'sport Wheels',
+          customer: {
+            name: 'Steve Outro',
+            email: 'felipe@email.com'
+          },
+          payment: 'À Vista'
+        }
+
+        // Act
+        await page.getByRole('textbox', { name: 'Número do Pedido' }).fill(order.number); // xpath - //label[text()='Número do Pedido']/..//input
+        await page.getByRole('button', { name: 'Buscar Pedido' }).click();
+      
+        // Assert
+        await expect(page.getByTestId(`order-result-${order.number}`)).toMatchAriaSnapshot(`
+          - img
+          - paragraph: Pedido
+          - paragraph: ${order.number}
+          - img
+          - text: ${order.status}
+          - img "Velô Sprint"
+          - paragraph: Modelo
+          - paragraph: Velô Sprint
+          - paragraph: Cor
+          - paragraph: ${order.color}
+          - paragraph: Interior
+          - paragraph: cream
+          - paragraph: Rodas
+          - paragraph: ${order.wheels}
+          - heading "Dados do Cliente" [level=4]
+          - paragraph: Nome
+          - paragraph: ${order.customer.name}
+          - paragraph: Email
+          - paragraph: ${order.customer.email}
+          - paragraph: Loja de Retirada
+          - paragraph
+          - paragraph: Data do Pedido
+          - paragraph: /\\d+\\/\\d+\\/\\d+/
+          - heading "Pagamento" [level=4]
+          - paragraph: ${order.payment}
+          - paragraph: /R\\$ \\d+\\.\\d+,\\d+/
+          `);
       });
       
       test('deve exibir mensagem quando o pedido não é encontrado', async ({ page }) => {
