@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { generateOrderCode } from '../support/helpers';
+import { OrderLockupPage } from '../support/pages/OrderLockupPage';
 
 // AAA - Arrange, Act, Assert
 // PAV - Preparar, Agir, Verificar
@@ -19,7 +20,6 @@ test.describe('Consulta de pedido', () => {
       test('deve consultar um pedido aprovado', async ({ page }) => {
 
         // Test Data
-        // const order = 'VLO-680LJF';
         const order = {
           number: 'VLO-680LJF',
           status: 'APROVADO',
@@ -32,26 +32,12 @@ test.describe('Consulta de pedido', () => {
           payment: 'À Vista'
         }
 
+
         // Act
-        await page.getByRole('textbox', { name: 'Número do Pedido' }).fill(order.number); // xpath - //label[text()='Número do Pedido']/..//input
-        // await page.getByTestId('search-order-button').click();
-        await page.getByRole('button', { name: 'Buscar Pedido' }).click();
+        const orderLockupPage = new OrderLockupPage(page);
+        await orderLockupPage.searchOrder(order.number);
       
         // Assert
-      //   const orderResult = page.locator('//p[text()="Pedido"]/..//p[text()="VLO-680LJF"]');
-      //   await expect(orderResult).toBeVisible({ timeout: 30000 });
-      //   await expect(orderResult).toContainText('VLO-680LJF');
-      
-      //   const orderStatus = page.locator('//div[text()="APROVADO"]');
-      //   await expect(orderStatus).toBeVisible({ timeout: 30000 });
-      //   await expect(orderStatus).toContainText('APROVADO');
-      
-        // Solução do desafio
-        // const containerPedido = page.getByRole('paragraph')
-        //   .filter({ hasText: /^Pedido$/ })
-        //   .locator('..') // Sobe para o elemento pai (a div que agrupa ambos)
-      
-        // await expect(containerPedido).toContainText(order, { timeout: 10_000 });
         await expect(page.getByTestId(`order-result-${order.number}`)).toMatchAriaSnapshot(`
           - img
           - paragraph: Pedido
@@ -88,17 +74,12 @@ test.describe('Consulta de pedido', () => {
         await expect(statusBadge).toHaveClass(/text-green-700/);
 
         const statusIcon = statusBadge.locator('svg');
-        await expect(statusIcon).toHaveClass(/lucide-check-circle/); 
-      //   await expect(page.getByTestId('order-result-id')).toBeVisible({ timeout: 30000 });
-      //   await expect(page.getByTestId('order-result-id')).toContainText('VLO-680LJF');
-      //   await expect(page.getByTestId('order-result-status')).toBeVisible();
-      //   await expect(page.getByTestId('order-result-status')).toContainText('APROVADO');
+        await expect(statusIcon).toHaveClass(/lucide-circle-check-big/); 
       });
 
       test('deve consultar um pedido reprovado', async ({ page }) => {
 
         // Test Data
-        // const order = 'VLO-6YCTVS';
         const order = {
           number: 'VLO-6YCTVS',
           status: 'REPROVADO',
@@ -112,8 +93,8 @@ test.describe('Consulta de pedido', () => {
         }
 
         // Act
-        await page.getByRole('textbox', { name: 'Número do Pedido' }).fill(order.number); // xpath - //label[text()='Número do Pedido']/..//input
-        await page.getByRole('button', { name: 'Buscar Pedido' }).click();
+        const orderLockupPage = new OrderLockupPage(page);
+        await orderLockupPage.searchOrder(order.number);
       
         // Assert
         await expect(page.getByTestId(`order-result-${order.number}`)).toMatchAriaSnapshot(`
@@ -152,7 +133,7 @@ test.describe('Consulta de pedido', () => {
           await expect(statusBadge).toHaveClass(/text-red-700/);
   
           const statusIcon = statusBadge.locator('svg');
-          await expect(statusIcon).toHaveClass(/lucide-x-circle/); 
+          await expect(statusIcon).toHaveClass(/lucide-circle-x/); 
       });
 
       test('deve consultar um pedido em análise', async ({ page }) => {
@@ -171,8 +152,8 @@ test.describe('Consulta de pedido', () => {
         }
 
         // Act
-        await page.getByRole('textbox', { name: 'Número do Pedido' }).fill(order.number); // xpath - //label[text()='Número do Pedido']/..//input
-        await page.getByRole('button', { name: 'Buscar Pedido' }).click();
+        const orderLockupPage = new OrderLockupPage(page);
+        await orderLockupPage.searchOrder(order.number);
       
         // Assert
         await expect(page.getByTestId(`order-result-${order.number}`)).toMatchAriaSnapshot(`
@@ -218,20 +199,11 @@ test.describe('Consulta de pedido', () => {
           // Test Data
           const order = generateOrderCode();
       
-          // Act
-          await page.getByRole('textbox', { name: 'Número do Pedido' }).fill(order); // xpath - //label[text()='Número do Pedido']/..//input
-          await page.getByRole('button', { name: 'Buscar Pedido' }).click();
+        // Act
+        const orderLockupPage = new OrderLockupPage(page);
+        await orderLockupPage.searchOrder(order);
       
-          await expect(page.locator('#root')).toContainText('Pedido não encontrado');
-          await expect(page.locator('#root')).toContainText('Verifique o número do pedido e tente novamente');
-      
-          // const title = page.getByRole('heading', { name: 'Pedido não encontrado', level: 3 });
-          // await expect(title).toBeVisible();
-      
-          // // const message = page.locator('//p[text()="Verifique o número do pedido e tente novamente"]');
-          // const message = page.locator('p', { hasText: 'Verifique o número do pedido e tente novamente' });
-          // await expect(message).toBeVisible();
-      
+          // Assert
           await expect(page.locator('#root')).toMatchAriaSnapshot(`
               - img
               - heading "Pedido não encontrado" [level=3]
