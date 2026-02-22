@@ -1,27 +1,14 @@
-import { test, expect } from '@playwright/test'
-
-import { generateOrderCode } from '../support/helpers'
-import { NavbarComponent } from '../support/components/NavbarComponent'
-import { LandingPage } from '../support/pages/LandingPage'
-import { OrderLockupPage } from '../support/pages/OrderLockupPage'
+import { test, expect } from '../support/fixtures';
+import { generateOrderCode } from '../support/helpers';
 
 /// AAA - Arrange, Act, Assert
 
 test.describe('Consulta de Pedido', () => {
+  test.beforeEach(async ({ app, page }) => {
+    await app.orderLockup.open();
+  });
 
-  let orderLockupPage: orderLockupPage;
-
-  test.beforeEach(async ({ page }) => {
-    await new LandingPage(page).goto()
-    await new NavbarComponent(page).orderLockupLink()
-
-    orderLockupPage = new OrderLockupPage(page);
-
-    await expect(page.getByRole('heading')).toContainText('Consultar Pedido')
-  })
-
-  test('deve consultar um pedido aprovado', async ({ page }) => {
-
+  test('deve consultar um pedido aprovado', async ({ app }) => {
     // Test Data
     const order = {
       number: 'VLO-680LJF',
@@ -29,22 +16,18 @@ test.describe('Consulta de Pedido', () => {
       color: 'Lunar White',
       wheels: 'aero Wheels',
       customer: {
-          name: 'Papito Matsumoto',
-          email: 'email@email.com'
+        name: 'Papito Matsumoto',
+        email: 'email@email.com',
       },
-      payment: 'À Vista'
-    }
- 
-    await orderLockupPage.searchOrder(order.number)
+      payment: 'À Vista',
+    };
 
-    await orderLockupPage.validateOrderDetails(order);
+    await app.orderLockup.searchOrder(order.number);
+    await app.orderLockup.validateOrderDetails(order);
+    await app.orderLockup.validateStatusBadge(order.status);
+  });
 
-    await orderLockupPage.validateStatusBadge(order.status)
-
-  })
-
-  test('deve consultar um pedido reprovado', async ({ page }) => {
-
+  test('deve consultar um pedido reprovado', async ({ app }) => {
     // Test Data
     const order = {
       number: 'VLO-6YCTVS',
@@ -52,21 +35,18 @@ test.describe('Consulta de Pedido', () => {
       color: 'Midnight Black',
       wheels: 'sport Wheels',
       customer: {
-          name: 'Steve Outro',
-          email: 'felipe@email.com'
+        name: 'Steve Outro',
+        email: 'felipe@email.com',
       },
-      payment: 'À Vista'
-    }
+      payment: 'À Vista',
+    };
 
-    await orderLockupPage.searchOrder(order.number)
+    await app.orderLockup.searchOrder(order.number);
+    await app.orderLockup.validateOrderDetails(order);
+    await app.orderLockup.validateStatusBadge(order.status);
+  });
 
-    await orderLockupPage.validateOrderDetails(order);
-
-    await orderLockupPage.validateStatusBadge(order.status)
-  })
-
-  test('deve consultar um pedido em analise', async ({ page }) => {
-
+  test('deve consultar um pedido em analise', async ({ app }) => {
     // Test Data
     const order = {
       number: 'VLO-F8U4SU',
@@ -74,35 +54,25 @@ test.describe('Consulta de Pedido', () => {
       color: 'Lunar White',
       wheels: 'aero Wheels',
       customer: {
-          name: 'joao da silva',
-          email: 'joao@velo.dev'
+        name: 'joao da silva',
+        email: 'joao@velo.dev',
       },
-      payment: 'À Vista'
-    }
+      payment: 'À Vista',
+    };
 
-    await orderLockupPage.searchOrder(order.number)
+    await app.orderLockup.searchOrder(order.number);
+    await app.orderLockup.validateOrderDetails(order);
+    await app.orderLockup.validateStatusBadge(order.status);
+  });
 
-    await orderLockupPage.validateOrderDetails(order);
+  test('deve exibir mensagem quando o pedido não é encontrado', async ({ app }) => {
+    const order = generateOrderCode();
+    await app.orderLockup.searchOrder(order);
+    await app.orderLockup.validateOrderNotFound();
+  });
 
-    await orderLockupPage.validateStatusBadge(order.status)
-  })
-
-  test('deve exibir mensagem quando o pedido não é encontrado', async ({ page }) => {
-
-    const order = generateOrderCode()
-
-    await orderLockupPage.searchOrder(order)
-
-
-    await orderLockupPage.validateOrderNotFound();
-
-  })
-
-  test('deve exibir mensagem quando o pedido em qualquer formato não é encontrado', async ({ page }) => {
-    await orderLockupPage.searchOrder('ABC123')
-
-
-    await orderLockupPage.validateOrderNotFound();
-
-  })
-})
+  test('deve exibir mensagem quando o pedido em qualquer formato não é encontrado', async ({ app }) => {
+    await app.orderLockup.searchOrder('ABC123');
+    await app.orderLockup.validateOrderNotFound();
+  });
+});
