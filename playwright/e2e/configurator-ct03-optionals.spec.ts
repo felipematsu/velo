@@ -9,7 +9,7 @@ test.describe('CT03 - Opcionais e cálculo de preço', () => {
     page,
     app,
   }) => {
-    const { configurator } = app;
+    const { configurator, checkout } = app;
 
     await expect(page).toHaveURL(/\/configure/);
     await configurator.expectTotalPrice('R$ 40.000,00');
@@ -24,7 +24,7 @@ test.describe('CT03 - Opcionais e cálculo de preço', () => {
     await configurator.uncheckOptional('Flux Capacitor');
     await configurator.expectTotalPrice('R$ 40.000,00');
 
-    await configurator.goToCheckout();
-    await configurator.expectCheckoutSummaryTotal('R$ 40.000,00');
+    await configurator.finishConfigurator();
+    await checkout.expectSummaryTotal('R$ 40.000,00');
   });
 });

@@ -69,15 +69,9 @@ export function createConfiguratorActions(page: Page) {
       await checkbox.uncheck();
     },
 
-    async goToCheckout() {
+    async finishConfigurator() {
       await page.getByRole('button', { name: 'Monte o Seu' }).click();
       await expect(page).toHaveURL(/\/order/);
-    },
-
-    async expectCheckoutSummaryTotal(price: string) {
-      const summaryTotal = page.getByTestId('summary-total-price');
-      await expect(summaryTotal).toBeVisible();
-      await expect(summaryTotal).toHaveText(price);
     },
   };
 }
