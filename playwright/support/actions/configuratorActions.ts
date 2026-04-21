@@ -4,6 +4,7 @@ const BASE_URL = 'http://localhost:5173';
 
 export type ConfiguratorColorId = 'midnight-black';
 export type ConfiguratorWheelId = 'sport' | 'aero';
+export type ConfiguratorOptionalLabel = 'Precision Park' | 'Flux Capacitor';
 
 export function createConfiguratorActions(page: Page) {
 
@@ -12,6 +13,13 @@ export function createConfiguratorActions(page: Page) {
 
   const wheelOption = (wheelId: ConfiguratorWheelId) =>
     page.getByTestId(`wheel-option-${wheelId}`);
+
+  const optionalCheckbox = (label: ConfiguratorOptionalLabel) =>
+    page
+      .getByTestId('section-opcionais')
+      .locator('label')
+      .filter({ hasText: label })
+      .getByRole('checkbox');
 
   return {
     async openFromLanding() {
@@ -47,6 +55,29 @@ export function createConfiguratorActions(page: Page) {
     async expectCarImageSrc(src: string) {
       const carImage = page.locator('img[alt^="Velô Sprint"]');
       await expect(carImage).toHaveAttribute('src', src);
+    },
+
+    async checkOptional(label: ConfiguratorOptionalLabel) {
+      const checkbox = optionalCheckbox(label);
+      await expect(checkbox).toBeVisible();
+      await checkbox.check();
+    },
+
+    async uncheckOptional(label: ConfiguratorOptionalLabel) {
+      const checkbox = optionalCheckbox(label);
+      await expect(checkbox).toBeVisible();
+      await checkbox.uncheck();
+    },
+
+    async goToCheckout() {
+      await page.getByRole('button', { name: 'Monte o Seu' }).click();
+      await expect(page).toHaveURL(/\/order/);
+    },
+
+    async expectCheckoutSummaryTotal(price: string) {
+      const summaryTotal = page.getByTestId('summary-total-price');
+      await expect(summaryTotal).toBeVisible();
+      await expect(summaryTotal).toHaveText(price);
     },
   };
 }
