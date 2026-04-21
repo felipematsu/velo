@@ -1,36 +1,45 @@
-import { test } from '../support/fixtures';
+import { test } from '../support/fixtures'
 
-test.describe('CT02 - Configuração do veículo', () => {
-
+test.describe('Configuração do Veículo', () => {
   test.beforeEach(async ({ app }) => {
-    await app.configurator.openFromLanding();
-  });
+    await app.configurator.open()
+  })
 
-  test('Deve atualizar a imagem do veículo e manter o preço base ao trocar a cor', async ({ app }) => {
-    const { configurator } = app;
+  test('deve atualizar a imagem e manter o preço base ao trocar a cor do veículo', async ({ app }) => {
+    await app.configurator.expectPrice('R$ 40.000,00')
 
-    await configurator.expectTotalPrice('R$ 40.000,00');
+    await app.configurator.selectColor('Midnight Black')
+    await app.configurator.expectPrice('R$ 40.000,00')
+    await app.configurator.expectCarImageSrc('/src/assets/midnight-black-aero-wheels.png')
+  })
 
-    await configurator.selectColor('midnight-black');
+  test('deve atualizar o preço e a imagem ao alterar as rodas, e restaurar os valores padrão', async ({ app }) => {
+    await app.configurator.expectPrice('R$ 40.000,00')
 
-    await configurator.expectTotalPrice('R$ 40.000,00');
-    await configurator.expectCarImageSrc('/src/assets/midnight-black-aero-wheels.png');
-  });
+    await app.configurator.selectWheels(/Sport Wheels/)
+    await app.configurator.expectPrice('R$ 42.000,00')
+    await app.configurator.expectCarImageSrc('/src/assets/glacier-blue-sport-wheels.png')
 
-  test('Deve atualizar a imagem do veículo e recalcular o preço final ao trocar as rodas', async ({ app }) => {
-    const { configurator } = app;
+    await app.configurator.selectWheels(/Aero Wheels/)
+    await app.configurator.expectPrice('R$ 40.000,00')
+    await app.configurator.expectCarImageSrc('/src/assets/glacier-blue-aero-wheels.png')
+  })
 
-    await configurator.expectTotalPrice('R$ 40.000,00');
+  test('deve atualizar o preço com opcionais e persistir no checkout', async ({ app }) => {
+    await app.configurator.expectPrice('R$ 40.000,00')
 
-    await configurator.selectWheels('sport');
+    await app.configurator.checkOptional(/Precision Park/i)
+    await app.configurator.expectPrice('R$ 45.500,00')
 
-    await configurator.expectTotalPrice('R$ 42.000,00');
-    await configurator.expectCarImageSrc('/src/assets/glacier-blue-sport-wheels.png');
+    await app.configurator.checkOptional(/Flux Capacitor/i)
+    await app.configurator.expectPrice('R$ 50.500,00')
 
-    await configurator.selectWheels('aero');
+    await app.configurator.uncheckOptional(/Precision Park/i)
+    await app.configurator.uncheckOptional(/Flux Capacitor/i)
+    await app.configurator.expectPrice('R$ 40.000,00')
 
-    await configurator.expectTotalPrice('R$ 40.000,00');
-    await configurator.expectCarImageSrc('/src/assets/glacier-blue-aero-wheels.png');
-  });
-
-});
+    await app.configurator.finishConfigurator()
+    await app.checkout.expectLoaded()
+    await app.checkout.expectSummaryTotal('R$ 40.000,00')
+  })
+})
