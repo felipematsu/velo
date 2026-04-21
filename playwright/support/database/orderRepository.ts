@@ -40,3 +40,11 @@ export async function insertOrder(order: OrderDetails) {
 export async function deleteOrderByNumber(orderNumber: string) {
   await db.deleteFrom('orders').where('order_number', '=', orderNumber).execute()
 }
+
+export async function deleteOrderByEmailAndDocument(email: string, document: string) {
+  // Remove tudo que não for dígito e garante 11 caracteres (caso falte os zeros à esquerda)
+  const cleanDocument = document.replace(/\D/g, '').padStart(11, '0')
+  const formattedCpf = cleanDocument.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4")
+
+  await db.deleteFrom('orders').where('customer_email', '=', email).where('customer_cpf', '=', formattedCpf).execute()
+}
