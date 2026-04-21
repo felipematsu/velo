@@ -6,11 +6,13 @@ import { OrderDetails } from '../actions/orderLookupActions'
 import crypto from 'crypto'
 
 export function normalizeValue(value: string) {
+  if (!value) return '';
+
   return value
     .normalize('NFD') // separa acentos
     .replace(/[\u0300-\u036f]/g, '') // remove acentos
     .replace(/\s+/g, '') // remove espaços
-    .toLowerCase() // converte para minúsculo
+    .toLowerCase(); // lowercase
 }
 
 export async function insertOrder(order: OrderDetails) {
@@ -31,7 +33,6 @@ export async function insertOrder(order: OrderDetails) {
     updated_at: new Date().toISOString(),
     optionals: [],
   }
-  
   // If the record exists it might throw a duplicate error, but we manage teardown.
   await db.insertInto('orders').values(data).execute()
 }
