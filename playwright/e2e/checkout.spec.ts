@@ -1,5 +1,5 @@
 import { test, expect } from '../support/fixtures'
-import { deleteOrderByEmailAndDocument } from '../support/database/orderRepository'
+import { deleteOrderByEmail } from '../support/database/orderRepository'
 
 test.describe('Checkout', () => {
 
@@ -134,7 +134,7 @@ test.describe('Checkout', () => {
         totalPrice: 'R$ 40.000,00'
       }
 
-      await deleteOrderByEmailAndDocument(customer.email, customer.document)
+      await deleteOrderByEmail(customer.email)
 
       // Arrange
       await page.goto('/')
