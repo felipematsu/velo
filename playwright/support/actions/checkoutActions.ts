@@ -64,5 +64,23 @@ export function createCheckoutActions(page: Page) {
     async submit() {
       await page.getByRole('button', { name: 'Confirmar Pedido' }).click()
     },
+
+    async expectOrderStatus(message: string | RegExp) {
+      await expect(page).toHaveURL(/\/success/)
+      await expect(page.getByTestId('success-status')).toHaveText(message)
+    },
+
+    async setCreditScore(score: number) {
+      await page.route('**/functions/v1/credit-analysis', async route => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            status: 'Done',
+            score: score,
+          }),
+        })
+      })
+    }
   }
 }
