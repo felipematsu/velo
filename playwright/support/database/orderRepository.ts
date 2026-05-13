@@ -1,0 +1,54 @@
+import { db } from './database'
+import { OrderTable } from './schema'
+
+import { OrderDetails } from '../actions/orderLookupActions'
+
+import crypto from 'crypto'
+
+export function normalizeValue(value: string) {
+  if (!value) return '';
+
+  return value
+    .normalize('NFD') // separa acentos
+    .replace(/[\u0300-\u036f]/g, '') // remove acentos
+    .replace(/\s+/g, '') // remove espaços
+    .toLowerCase(); // lowercase
+}
+
+export async function insertOrder(order: OrderDetails) {
+
+  const data: OrderTable = {
+    id: crypto.randomUUID(),
+    order_number: order.number,
+    color: order.color.toLowerCase().replace(' ', '-'),
+    wheel_type: order.wheels.replace(' Wheels', '').toLowerCase(),
+    customer_name: order.customer.name,
+    customer_email: order.customer.email,
+    customer_phone: order.customer.phone,
+    customer_cpf: order.customer.document,
+    payment_method: normalizeValue(order.payment),
+    total_price: order.total_price,
+    status: order.status,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    optionals: [],
+  }
+  // If the record exists it might throw a duplicate error, but we manage teardown.
+  await db.insertInto('orders').values(data).execute()
+}
+
+export async function deleteOrderByNumber(orderNumber: string) {
+  await db.deleteFrom('orders').where('order_number', '=', orderNumber).execute()
+}
+
+export async function deleteOrderByEmailAndDocument(email: string, document: string) {
+  // Remove tudo que não for dígito e garante 11 caracteres (caso falte os zeros à esquerda)
+  const cleanDocument = document.replace(/\D/g, '').padStart(11, '0')
+  const formattedCpf = cleanDocument.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4")
+
+  await db.deleteFrom('orders').where('customer_email', '=', email).where('customer_cpf', '=', formattedCpf).execute()
+}
+
+export async function deleteOrderByEmail(email: string) {
+  await db.deleteFrom('orders').where('customer_email', '=', email).execute()
+}
