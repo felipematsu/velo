@@ -65,9 +65,9 @@ export function createCheckoutActions(page: Page) {
       await page.getByRole('button', { name: 'Confirmar Pedido' }).click()
     },
 
-    async expectOrderStatus(message: string | RegExp) {
+    async expectResult(status: string) {
       await expect(page).toHaveURL(/\/success/)
-      await expect(page.getByTestId('success-status')).toHaveText(message)
+      await expect(page.getByRole('heading', { name: status })).toBeVisible()
     },
 
     async setCreditScore(score: number) {
