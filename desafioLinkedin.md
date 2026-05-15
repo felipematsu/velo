@@ -11,7 +11,7 @@ Encontrar onde um teste falhou com facilidade, indicando a linha na qual ele par
 A linha do tempo do teste fica disponível para entender como foi feita a execução ao mover o mouse por cima e por qual motivo o teste parou/falhou.
 É possível também expandir a janela do browser a partir de um determinado passo, possibilitando inspecionar o sistema em validação e buscar os elementos naquele determinado estado.
 
-(COLOCAR IMAMGEM DO TRACE)
+<img width="1354" height="626" alt="image" src="https://github.com/user-attachments/assets/dd1d080e-ba47-4b67-a81c-e013705c52e5" />
 
 ### Paralelização nativa
 O recurso de paralelização nativa do Playwright é um dos pontos fortes dessa ferramenta. Enquanto outras soluções oferecem esse recurso de forma paga ou com maior complexidade, o Playwright traz isso de forma gratuita e simplificada. Sua utilização permite que todos os testes executem num tempo menor e com maior confiabilidade. Além do recurso de paralelização nativa, é possível combiná-la com os jobs paralelos presentes em uma plataforma de CI/CD como o Github Actions, reduzindo mais ainda o tempo de execução e permitindo que uma suíte maior de testes seja executada.
